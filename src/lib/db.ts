@@ -3,29 +3,33 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define MONGODB_URI in your .env.local file");
+  throw new Error(" Please define MONGODB_URI in your environment variables");
 }
 
-declare global {
-  var mongoose: { conn: typeof import("mongoose") | null; promise: Promise<any> | null };
-}
-
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+const cached = (global as any).mongoose || { conn: null, promise: null };
 
 export async function connectToDatabase() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     const opts = {
+      dbName: "BookIt", 
       bufferCommands: false,
-      maxPoolSize: 10,
+      maxPoolSize: 50, 
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000, 
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then(() => mongoose.connection);
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
+      .then((mongooseInstance) => {
+        console.log("MongoDB Connected Successfully");
+        return mongooseInstance;
+      })
+      .catch((err) => {
+        console.error(" MongoDB Connection Failed:", err.message);
+        throw err;
+      });
   }
 
   try {
@@ -35,5 +39,6 @@ export async function connectToDatabase() {
     throw error;
   }
 
+  (global as any).mongoose = cached;
   return cached.conn;
 }
