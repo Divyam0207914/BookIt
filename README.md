@@ -82,4 +82,5 @@
 
 🧑‍💻 Author-Divyam Saraf
     Full-Stack Developer | Passionate about clean UI and scalable backend systems
-    divyamsaraf192@gmail.com
+    divyamsaraf192@gmail.com | https://www.linkedin.com/in/divyam-saraf-9a2057318
+    
